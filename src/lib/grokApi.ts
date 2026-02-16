@@ -193,6 +193,8 @@ export async function imageToVideo(
     resolution: options?.resolution === "720p" ? "720p" : "480p",
   };
 
+  console.log("Sending video request with body:", JSON.stringify(body, null, 2));
+
   const startRes = await fetch(`${baseUrl}/videos/generations`, {
     method: "POST",
     headers: {

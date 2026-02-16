@@ -41,6 +41,7 @@ export default function ImageToVideo() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedPath, setSavedPath] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
 
   const prompt = prompts[currentIndex] || "";
 
@@ -102,6 +103,19 @@ export default function ImageToVideo() {
     setError(null);
     setResultUrl(null);
     setSavedPath(null);
+    setProgress(0);
+
+    // Start progress timer (25 seconds to 100%)
+    const startTime = Date.now();
+    const progressInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const percentage = Math.min(100, Math.floor((elapsed / 25000) * 100));
+      setProgress(percentage);
+      if (percentage >= 100) {
+        clearInterval(progressInterval);
+      }
+    }, 100);
+
     try {
       const url = await imageToVideo(prompt.trim(), preview, {
         duration,
@@ -129,8 +143,10 @@ export default function ImageToVideo() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Request failed");
+      clearInterval(progressInterval);
     } finally {
       setLoading(false);
+      clearInterval(progressInterval);
     }
   }, [preview, prompt, duration, resolution]);
 
@@ -154,18 +170,6 @@ export default function ImageToVideo() {
 
         <div className="form">
           <ImageUpload preview={preview} onFileSelect={onFileSelect} />
-
-          <label className="block">
-            <span>Video length: {duration} s</span>
-            <input
-              type="range"
-              className="slider"
-              min={DURATION_MIN}
-              max={DURATION_MAX}
-              value={duration}
-              onChange={(e) => setDuration(Number(e.target.value))}
-            />
-          </label>
 
           <label className="block">
             <span>Prompt ({currentIndex + 1}/{prompts.length})</span>
@@ -207,7 +211,9 @@ export default function ImageToVideo() {
       <div className="page-column page-column-right">
         {loading && !resultUrl && (
           <div className="result-placeholder">
+            <div className="spinner"></div>
             <p className="status">Video is being generated. This may take a few minutes.</p>
+            <p className="progress-text">{progress}%</p>
           </div>
         )}
         {resultUrl && (
