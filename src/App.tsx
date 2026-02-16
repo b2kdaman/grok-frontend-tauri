@@ -7,10 +7,10 @@ const SITE_TITLE = "Grok Image & Video";
 const GITHUB_REPO = "https://github.com/DE0CH/grok-frontend";
 
 const PAGE_TITLES: Record<string, string> = {
-  "/": "Image to Image",
+  "/": "Image to Video",
   "/login": "Log in",
   "/text-to-image": "Text to Image",
-  "/image-to-video": "Image to Video",
+  "/image-to-image": "Image to Image",
 };
 
 function usePageTitle() {
@@ -52,14 +52,6 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <nav className="nav">
-        <Link to="/">Image to Image</Link>
-        <Link to="/text-to-image">Text to Image</Link>
-        <Link to="/image-to-video">Image to Video</Link>
-        <button type="button" className="nav-logout" onClick={handleLogout}>
-          Log out
-        </button>
-      </nav>
       <main>{children}</main>
     </>
   );
@@ -76,7 +68,7 @@ function App() {
             path="/"
             element={
               <ProtectedLayout>
-                <ImageToImage />
+                <ImageToVideo />
               </ProtectedLayout>
             }
           />
@@ -89,10 +81,10 @@ function App() {
             }
           />
           <Route
-            path="/image-to-video"
+            path="/image-to-image"
             element={
               <ProtectedLayout>
-                <ImageToVideo />
+                <ImageToImage />
               </ProtectedLayout>
             }
           />

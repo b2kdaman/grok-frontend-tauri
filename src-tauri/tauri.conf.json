@@ -1,0 +1,38 @@
+{
+  "productName": "GitGrok",
+  "version": "0.1.0",
+  "identifier": "com.gitgrok.app",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "GitGrok",
+        "width": 1200,
+        "height": 800,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null,
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["**"]
+      }
+    }
+  },
+  "bundle": {
+    "active": false,
+    "targets": "all"
+  },
+  "plugins": {
+    "shell": {
+      "open": true
+    }
+  }
+}

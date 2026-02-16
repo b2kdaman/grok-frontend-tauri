@@ -1,5 +1,6 @@
 import { createXai } from "@ai-sdk/xai";
 import { generateImage } from "ai";
+import { invoke } from "@tauri-apps/api/core";
 
 let userApiKey: string | null = null;
 
@@ -22,10 +23,29 @@ function useProxy(url: string): boolean {
   return XAI_CDN_PREFIXES.some((p) => url.startsWith(p));
 }
 
+/** Check if we're running in Tauri (desktop app) */
+function isTauri(): boolean {
+  return '__TAURI_INTERNALS__' in window;
+}
+
 /** Custom fetch so requests to imgen.x.ai and vidgen.x.ai go via our proxy (avoids CORS). */
-function grokFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+async function grokFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : (input as Request).url;
   if (useProxy(url)) {
+    // In Tauri, use the Rust backend proxy command
+    if (isTauri()) {
+      try {
+        const bytes = await invoke<number[]>("proxy_media", { url });
+        const uint8Array = new Uint8Array(bytes);
+        return new Response(uint8Array, {
+          status: 200,
+          headers: { "Content-Type": "application/octet-stream" },
+        });
+      } catch (err) {
+        return new Response(null, { status: 502 });
+      }
+    }
+    // In web/dev mode, use the Vite dev server proxy
     const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`;
     return fetch(proxyUrl, init);
   }
@@ -210,12 +230,13 @@ export async function imageToVideo(
     }
     const pollData = (await pollRes.json()) as {
       status?: string;
-      video?: { url?: string };
+      video?: { url?: string; hdvideo_url?: string };
     };
     if (pollData.status === "expired") throw new Error("Video request expired");
     // Done when we have video.url (API may omit "status" when complete)
-    if (pollData.video?.url) {
-      const videoUrl = pollData.video.url;
+    // Prefer hdvideo_url if available, otherwise use url
+    const videoUrl = pollData.video?.hdvideo_url || pollData.video?.url;
+    if (videoUrl) {
       return useProxy(videoUrl)
         ? `/api/proxy-image?url=${encodeURIComponent(videoUrl)}`
         : videoUrl;
