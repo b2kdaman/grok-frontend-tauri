@@ -9,6 +9,7 @@ const GITHUB_REPO = "https://github.com/DE0CH/grok-frontend";
 const PAGE_TITLES: Record<string, string> = {
   "/": "Image to Image",
   "/login": "Log in",
+  "/text-to-image": "Text to Image",
   "/image-to-video": "Image to Video",
 };
 
@@ -24,6 +25,7 @@ import { getApiKeyFromCookie, clearApiKeyCookie } from "./lib/cookies";
 import Login from "./pages/Login";
 import ImageToImage from "./pages/ImageToImage";
 import ImageToVideo from "./pages/ImageToVideo";
+import TextToImage from "./pages/TextToImage";
 import NotFound from "./pages/NotFound";
 import "./App.css";
 
@@ -52,6 +54,7 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
     <>
       <nav className="nav">
         <Link to="/">Image to Image</Link>
+        <Link to="/text-to-image">Text to Image</Link>
         <Link to="/image-to-video">Image to Video</Link>
         <button type="button" className="nav-logout" onClick={handleLogout}>
           Log out
@@ -74,6 +77,14 @@ function App() {
             element={
               <ProtectedLayout>
                 <ImageToImage />
+              </ProtectedLayout>
+            }
+          />
+          <Route
+            path="/text-to-image"
+            element={
+              <ProtectedLayout>
+                <TextToImage />
               </ProtectedLayout>
             }
           />

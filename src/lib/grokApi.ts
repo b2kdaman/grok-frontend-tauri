@@ -1,6 +1,5 @@
 import { createXai } from "@ai-sdk/xai";
 import { generateImage } from "ai";
-import { experimental_generateVideo as generateVideo } from "ai";
 
 let userApiKey: string | null = null;
 
@@ -31,24 +30,6 @@ function grokFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Respon
     return fetch(proxyUrl, init);
   }
   return fetch(input, init);
-}
-
-/** Custom download for generateVideo: fetches video URLs via our proxy to avoid CORS. */
-async function proxyDownload(options: {
-  url: URL;
-  abortSignal?: AbortSignal;
-}): Promise<{ data: Uint8Array; mediaType: string | undefined }> {
-  const href = options.url.href;
-  const url = useProxy(href)
-    ? `/api/proxy-image?url=${encodeURIComponent(href)}`
-    : href;
-  const res = await fetch(url, { signal: options.abortSignal });
-  if (!res.ok) throw new Error(`Download failed: ${res.status}`);
-  const buf = await res.arrayBuffer();
-  return {
-    data: new Uint8Array(buf),
-    mediaType: res.headers.get("content-type") ?? undefined,
-  };
 }
 
 function getXai() {
@@ -121,6 +102,25 @@ function getErrorMessage(err: unknown): string {
 }
 
 /**
+ * Text-to-image: send prompt only, returns image as data URL.
+ * Uses Grok SDK (generateImage with grok-imagine-image).
+ */
+export async function textToImage(prompt: string): Promise<string> {
+  try {
+    const { images } = await generateImage({
+      model: getXai().image("grok-imagine-image"),
+      prompt: prompt.trim(),
+    });
+
+    const first = images?.[0];
+    if (!first) throw new Error("No image in response");
+    return `data:${first.mediaType};base64,${first.base64}`;
+  } catch (err) {
+    throw new Error(getErrorMessage(err));
+  }
+}
+
+/**
  * Image edit: send image (data URI or URL) + prompt, returns image as data URL.
  * Uses Grok SDK (generateImage with grok-imagine-image).
  */
@@ -149,48 +149,78 @@ export async function imageEdit(
   }
 }
 
+const POLL_INTERVAL_MS = 3000;
+const POLL_TIMEOUT_MS = 600_000; // 10 min
+
 /**
- * Image-to-video: send image (data URI) + prompt, returns video as data URL.
- * Uses Grok SDK (experimental_generateVideo with grok-imagine-video). Polling is handled by the SDK.
+ * Image-to-video: HTTP POST to xAI /videos/generations, then poll until done.
+ * Image can be a public URL or a base64 data URI. Aspect ratio is omitted (uses input image).
+ * Returns a URL the frontend can use (proxy URL for vidgen.x.ai to avoid CORS).
  */
 export async function imageToVideo(
   prompt: string,
   imageDataUri: string,
-  options?: { duration?: number; aspectRatio?: string; resolution?: string }
+  options?: { duration?: number; resolution?: string }
 ): Promise<string> {
-  try {
-    const imageInput = imageDataUri.startsWith("http")
-      ? imageDataUri
-      : dataUriToUint8Array(imageDataUri);
+  const apiKey = getApiKey();
+  const baseUrl = getBaseUrl().replace(/\/$/, "");
 
-    const { videos } = await generateVideo({
-      model: getXai().video("grok-imagine-video"),
-      prompt: {
-        image: imageInput,
-        text: prompt,
-      },
-      duration: options?.duration ?? 5,
-      // Omit aspectRatio so the API uses the input image's aspect ratio (xAI default for image-to-video).
-      ...(options?.aspectRatio != null && {
-        aspectRatio: options.aspectRatio as "16:9" | "1:1" | "9:16" | "4:3" | "3:4" | "3:2" | "2:3",
-      }),
-      resolution:
-        options?.resolution === "720p"
-          ? "1280x720"
-          : "854x480",
-      providerOptions: {
-        xai: {
-          pollTimeoutMs: 600_000, // 10 min
-        },
-      },
-      // SDK downloads the video URL with its own fetch (CORS). Use our proxy for vidgen.x.ai.
-      download: proxyDownload,
-    });
+  const body: Record<string, unknown> = {
+    model: "grok-imagine-video",
+    prompt: prompt.trim(),
+    image: { url: imageDataUri },
+    duration: options?.duration ?? 5,
+    resolution: options?.resolution === "720p" ? "720p" : "480p",
+  };
 
-    const first = videos?.[0];
-    if (!first) throw new Error("No video in response");
-    return `data:${first.mediaType};base64,${first.base64}`;
-  } catch (err) {
-    throw new Error(getErrorMessage(err));
+  const startRes = await fetch(`${baseUrl}/videos/generations`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!startRes.ok) {
+    const text = await startRes.text();
+    try {
+      const parsed = JSON.parse(text) as { error?: string | { message?: string } };
+      if (typeof parsed.error === "string") throw new Error(parsed.error);
+      if (parsed.error && typeof parsed.error === "object" && typeof parsed.error.message === "string")
+        throw new Error(parsed.error.message);
+    } catch (e) {
+      if (e instanceof Error && e.message !== "Request failed") throw e;
+    }
+    throw new Error(text || `Request failed: ${startRes.status}`);
   }
+
+  const startData = (await startRes.json()) as { request_id?: string };
+  const requestId = startData.request_id;
+  if (!requestId) throw new Error("No request_id in response");
+
+  const deadline = Date.now() + POLL_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    const pollRes = await fetch(`${baseUrl}/videos/${requestId}`, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    if (!pollRes.ok) {
+      const errText = await pollRes.text();
+      throw new Error(errText || `Poll failed: ${pollRes.status}`);
+    }
+    const pollData = (await pollRes.json()) as {
+      status?: string;
+      video?: { url?: string };
+    };
+    if (pollData.status === "expired") throw new Error("Video request expired");
+    // Done when we have video.url (API may omit "status" when complete)
+    if (pollData.video?.url) {
+      const videoUrl = pollData.video.url;
+      return useProxy(videoUrl)
+        ? `/api/proxy-image?url=${encodeURIComponent(videoUrl)}`
+        : videoUrl;
+    }
+    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+  }
+  throw new Error("Video generation timed out");
 }

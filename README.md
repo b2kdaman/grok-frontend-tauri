@@ -1,9 +1,10 @@
 # Grok Image & Video
 
-A small web app to edit images and generate videos using the [xAI (Grok) API](https://x.ai/). You upload an image, add a prompt, and get either an edited image or a short video.
+A small web app to generate and edit images and videos using the [xAI (Grok) API](https://x.ai/). Create images from text, edit images with a prompt, or turn an image into a short video.
 
 ## Features
 
+- **Text to Image** — Enter a text prompt; get an image generated from your description.
 - **Image to Image** — Upload an image and a text prompt; get a new image edited to match the prompt.
 - **Image to Video** — Upload an image and a prompt, choose duration (1–15 seconds); get a video.
 - **Login** — Your xAI API key is stored in a cookie in your browser (not sent to any server except xAI via the app). No account on this app; just your API key.
@@ -34,19 +35,24 @@ Open [http://localhost:5173](http://localhost:5173). You’ll be asked to log in
 1. **Log in**  
    Go to the app, enter your xAI API key on the login page, and submit. The key is stored in a cookie so you stay logged in until you log out or clear it.
 
-2. **Image to Image**  
+2. **Text to Image**  
+   - Open **Text to Image** from the nav.
+   - Enter a prompt describing the image you want.
+   - Submit. The generated image appears at the top; you can download it if needed.
+
+3. **Image to Image**  
    - Open the **Image to Image** page (home).
    - Upload an image (drag-and-drop or click to choose).
    - Enter a prompt describing how you want the image edited.
    - Submit. The result image appears at the top; you can download it if needed.
 
-3. **Image to Video**  
+4. **Image to Video**  
    - Open **Image to Video** from the nav.
    - Upload an image and enter a prompt.
    - Use the duration slider (1–15 seconds).
    - Submit. When the video is ready, it appears at the top and can be played or downloaded.
 
-4. **Log out**  
+5. **Log out**  
    Use **Log out** in the nav to clear the stored API key and return to the login page.
 
 ## Tech stack
