@@ -71,7 +71,7 @@ The app is a single-page app. For Vercel, `vercel.json` rewrites all routes to `
 
 ```bash
 npm run build
-vercel
+npx vercel
 ```
 
 (or connect the repo to Vercel for automatic deploys). The API key is always entered in the browser and stored in a cookie; no server-side secrets are required for basic use.
