@@ -1,5 +1,7 @@
 # Grok Image & Video
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FDE0CH%2Fgrok-frontend)
+
 A small web app to generate and edit images and videos using the [xAI (Grok) API](https://x.ai/). Create images from text, edit images with a prompt, or turn an image into a short video.
 
 ## Features
@@ -63,7 +65,9 @@ Open [http://localhost:5173](http://localhost:5173). You’ll be asked to log in
 
 ## Deploy (e.g. Vercel)
 
-The app is a single-page app. For Vercel, `vercel.json` rewrites all routes to `index.html`. Deploy with:
+**[Deploy with Vercel](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FDE0CH%2Fgrok-frontend)** — click the button at the top to clone and deploy this repo in one step.
+
+The app is a single-page app. For Vercel, `vercel.json` rewrites all routes to `index.html`. To deploy from the CLI:
 
 ```bash
 npm run build
