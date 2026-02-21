@@ -3,8 +3,6 @@ import { imageToVideo } from "../lib/grokApi";
 import ImageUpload from "../components/ImageUpload";
 import { invoke } from "@tauri-apps/api/core";
 
-const DURATION_MIN = 1;
-const DURATION_MAX = 15;
 const DURATION_DEFAULT = 6;
 const PROMPTS_STORAGE_KEY = "image-to-video-prompts";
 
@@ -35,8 +33,8 @@ export default function ImageToVideo() {
   const [preview, setPreview] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<string[]>(() => loadPrompts());
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [duration, setDuration] = useState(DURATION_DEFAULT);
-  const [resolution, setResolution] = useState<Resolution>("720p");
+  const [duration] = useState(DURATION_DEFAULT);
+  const [resolution] = useState<Resolution>("720p");
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,7 +86,6 @@ export default function ImageToVideo() {
       return;
     }
     setError(null);
-    setResultUrl(null);
     const reader = new FileReader();
     reader.onload = () => setPreview(reader.result as string);
     reader.readAsDataURL(f);
@@ -101,7 +98,6 @@ export default function ImageToVideo() {
     }
     setLoading(true);
     setError(null);
-    setResultUrl(null);
     setSavedPath(null);
     setProgress(0);
 
@@ -218,6 +214,12 @@ export default function ImageToVideo() {
         )}
         {resultUrl && (
           <div className="result-fill">
+            {loading && (
+              <div className="result-loading-badge">
+                <div className="spinner-small"></div>
+                <span>{progress}%</span>
+              </div>
+            )}
             <video src={resultUrl} controls autoPlay loop className="result-video-fill" />
           </div>
         )}
