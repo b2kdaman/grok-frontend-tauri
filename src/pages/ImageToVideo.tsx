@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { imageToVideo } from "../lib/grokApi";
 import ImageUpload from "../components/ImageUpload";
 import { invoke } from "@tauri-apps/api/core";
@@ -88,6 +88,7 @@ export default function ImageToVideo() {
   const [savedPath, setSavedPath] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [jobs, setJobs] = useState<Job[]>(() => loadJobs());
+  const jobsListRef = useRef<HTMLDivElement>(null);
 
   const prompt = prompts[currentIndex] || "";
 
@@ -100,6 +101,13 @@ export default function ImageToVideo() {
   useEffect(() => {
     saveJobs(jobs);
   }, [jobs]);
+
+  // Auto-scroll to top when new job is added
+  useEffect(() => {
+    if (jobsListRef.current && jobs.length > 0) {
+      jobsListRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [jobs.length]);
 
   const updatePrompt = useCallback((value: string) => {
     setPrompts((prev) => {
@@ -259,8 +267,10 @@ export default function ImageToVideo() {
   return (
     <div className="page page-two-column">
       <div className="page-column page-column-left">
-        <h1>Image to Video</h1>
-        <p className="subtitle">Upload an image and describe the motion. The model returns a short video.</p>
+        <div className="page-header">
+          <h1>Image to Video</h1>
+          <p className="subtitle">Upload an image and describe the motion. The model returns a short video.</p>
+        </div>
 
         <div className="form">
           <ImageUpload preview={preview} onFileSelect={onFileSelect} />
@@ -301,7 +311,7 @@ export default function ImageToVideo() {
 
           <div className="jobs-log">
             <h3>Jobs History</h3>
-            <div className="jobs-list">
+            <div className="jobs-list" ref={jobsListRef}>
               {jobs.length === 0 ? (
                 <p className="jobs-empty">No jobs yet. Generate a video to get started.</p>
               ) : (

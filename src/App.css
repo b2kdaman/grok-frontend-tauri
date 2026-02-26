@@ -129,28 +129,14 @@
 }
 
 .page-column-left {
-  overflow-y: auto;
   background: #1f1f1f;
   border-radius: 16px;
   padding: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.page-column-left::-webkit-scrollbar {
-  width: 6px;
-}
-
-.page-column-left::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.page-column-left::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 3px;
-}
-
-.page-column-left::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .page-column-right {
@@ -235,6 +221,11 @@
   }
 }
 
+.page-header {
+  flex-shrink: 0;
+  margin-bottom: 1.25rem;
+}
+
 .page h1 {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
@@ -245,7 +236,7 @@
 
 .subtitle {
   color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 1.25rem;
+  margin-bottom: 0;
   font-size: 0.9rem;
   line-height: 1.4;
 }
@@ -264,6 +255,8 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  height: 100%;
+  overflow: hidden;
 }
 
 .block {
@@ -556,6 +549,11 @@
   margin-top: 1.75rem;
   padding-top: 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .jobs-log h3 {
@@ -565,15 +563,17 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
 }
 
 .jobs-list {
-  max-height: 400px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   padding-right: 0.5rem;
+  flex: 1;
+  min-height: 0;
 }
 
 .jobs-list::-webkit-scrollbar {
