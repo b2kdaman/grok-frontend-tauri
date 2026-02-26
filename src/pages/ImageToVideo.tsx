@@ -63,6 +63,19 @@ function saveJobs(jobs: Job[]): void {
   }
 }
 
+function getJobStatusText(job: Job): string {
+  if (job.status === "failed" && job.error) {
+    const errorLower = job.error.toLowerCase();
+    if (errorLower.includes("moderation")) {
+      return "failed - moderation";
+    }
+    if (errorLower.includes("token")) {
+      return "failed - balance";
+    }
+  }
+  return job.status;
+}
+
 export default function ImageToVideo() {
   const [preview, setPreview] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<string[]>(() => loadPrompts());
@@ -295,27 +308,35 @@ export default function ImageToVideo() {
               ) : (
                 jobs.map((job) => (
                   <div key={job.id} className={`job-item job-${job.status}`}>
-                    <div className="job-header">
-                      <span className="job-status">{job.status}</span>
-                      {job.status === "processing" && <span className="job-progress">{job.progress}%</span>}
-                    </div>
-                    <div className="job-prompt">{job.prompt}</div>
-                    {job.error && <p className="job-error">{job.error}</p>}
-                    {job.savedPath && <p className="job-saved-path">Saved: {job.savedPath}</p>}
-                    <div className="job-actions">
-                      <button
-                        type="button"
-                        onClick={() => rerunJob(job)}
-                        disabled={loading}
-                        className="job-rerun-btn"
-                      >
-                        ↻ Rerun
-                      </button>
-                      {job.resultUrl && (
-                        <a href={job.resultUrl} target="_blank" rel="noopener noreferrer" className="job-view-link">
-                          View Result
-                        </a>
+                    <div className="job-content">
+                      {job.image && (
+                        <div className="job-image">
+                          <img src={job.image} alt="Job input" />
+                        </div>
                       )}
+                      <div className="job-details">
+                        <div className="job-header">
+                          <span className="job-status">{getJobStatusText(job)}</span>
+                          {job.status === "processing" && <span className="job-progress">{job.progress}%</span>}
+                        </div>
+                        <div className="job-prompt">{job.prompt}</div>
+                        {job.savedPath && <p className="job-saved-path">Saved: {job.savedPath}</p>}
+                        <div className="job-actions">
+                          <button
+                            type="button"
+                            onClick={() => rerunJob(job)}
+                            disabled={loading}
+                            className="job-rerun-btn"
+                          >
+                            ↻ Rerun
+                          </button>
+                          {job.resultUrl && (
+                            <a href={job.resultUrl} target="_blank" rel="noopener noreferrer" className="job-view-link">
+                              View Result
+                            </a>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))
