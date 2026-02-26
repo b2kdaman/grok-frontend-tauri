@@ -299,8 +299,17 @@
 }
 
 .upload-zone--dragging {
-  border-color: #646cff;
-  background: rgba(100, 108, 255, 0.12);
+  border-color: #7c84ff !important;
+  background: rgba(100, 108, 255, 0.15) !important;
+  border-style: solid;
+}
+
+.upload-zone--dragging .upload-zone-text {
+  color: #7c84ff;
+}
+
+.upload-zone--dragging .upload-zone-icon {
+  color: #7c84ff;
 }
 
 .upload-zone--has-preview {
@@ -826,8 +835,17 @@
   }
 
   .upload-zone--dragging {
-    border-color: #646cff;
-    background: rgba(100, 108, 255, 0.15);
+    border-color: #535bf2 !important;
+    background: rgba(83, 91, 242, 0.2) !important;
+    border-style: solid;
+  }
+
+  .upload-zone--dragging .upload-zone-text {
+    color: #535bf2;
+  }
+
+  .upload-zone--dragging .upload-zone-icon {
+    color: #535bf2;
   }
 
   .upload-zone-icon {

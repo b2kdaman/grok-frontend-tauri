@@ -21,9 +21,12 @@ export default function ImageUpload({ preview, onFileSelect, label = "Image" }: 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
+      e.stopPropagation();
       setIsDragging(false);
       const f = e.dataTransfer.files?.[0];
-      if (f && f.type.startsWith("image/")) onFileSelect(f);
+      if (f && f.type.startsWith("image/")) {
+        onFileSelect(f);
+      }
     },
     [onFileSelect]
   );
@@ -34,8 +37,14 @@ export default function ImageUpload({ preview, onFileSelect, label = "Image" }: 
   }, []);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
+    // Only set dragging false if we're leaving the drop zone itself
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+
+    if (x <= rect.left || x >= rect.right || y <= rect.top || y >= rect.bottom) {
+      setIsDragging(false);
+    }
   }, []);
 
   return (
