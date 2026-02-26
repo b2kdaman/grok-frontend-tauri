@@ -481,6 +481,175 @@
   width: 100%;
 }
 
+.jobs-log {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.jobs-log h3 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.jobs-list {
+  max-height: 400px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-right: 0.5rem;
+}
+
+.jobs-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.jobs-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.jobs-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.jobs-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.jobs-empty {
+  color: #888;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.job-item {
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+.job-item:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.job-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.job-pending .job-status {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffb74d;
+}
+
+.job-processing .job-status {
+  background: rgba(100, 108, 255, 0.2);
+  color: #646cff;
+}
+
+.job-completed .job-status {
+  background: rgba(129, 199, 132, 0.2);
+  color: #81c784;
+}
+
+.job-failed .job-status {
+  background: rgba(229, 115, 115, 0.2);
+  color: #e57373;
+}
+
+.job-progress {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #646cff;
+}
+
+.job-prompt {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.job-error {
+  font-size: 0.85rem;
+  color: #e57373;
+  margin: 0.5rem 0;
+}
+
+.job-saved-path {
+  font-size: 0.8rem;
+  color: #81c784;
+  margin: 0.5rem 0;
+  word-break: break-all;
+}
+
+.job-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.job-rerun-btn {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.2);
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.job-rerun-btn:hover:not(:disabled) {
+  border-color: #646cff;
+  background: rgba(100, 108, 255, 0.1);
+  color: #646cff;
+}
+
+.job-rerun-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.job-view-link {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  border: 1px solid rgba(100, 108, 255, 0.3);
+  background: rgba(100, 108, 255, 0.1);
+  color: #646cff;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: inline-block;
+}
+
+.job-view-link:hover {
+  border-color: #646cff;
+  background: rgba(100, 108, 255, 0.2);
+  color: #535bf2;
+}
+
 .error {
   color: #e57373;
   margin-top: 1rem;
@@ -630,6 +799,94 @@
   .spinner-small {
     border-color: rgba(83, 91, 242, 0.25);
     border-top-color: #535bf2;
+  }
+
+  .jobs-log {
+    border-top-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .jobs-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .jobs-list::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .jobs-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .jobs-empty {
+    color: #666;
+  }
+
+  .job-item {
+    border-color: rgba(0, 0, 0, 0.15);
+    background: #f5f5f5;
+  }
+
+  .job-item:hover {
+    border-color: rgba(0, 0, 0, 0.25);
+    background: #eeeeee;
+  }
+
+  .job-pending .job-status {
+    background: rgba(255, 152, 0, 0.15);
+    color: #f57c00;
+  }
+
+  .job-processing .job-status {
+    background: rgba(83, 91, 242, 0.15);
+    color: #535bf2;
+  }
+
+  .job-completed .job-status {
+    background: rgba(46, 125, 50, 0.15);
+    color: #2e7d32;
+  }
+
+  .job-failed .job-status {
+    background: rgba(198, 40, 40, 0.15);
+    color: #c62828;
+  }
+
+  .job-progress {
+    color: #535bf2;
+  }
+
+  .job-prompt {
+    color: rgba(0, 0, 0, 0.9);
+  }
+
+  .job-error {
+    color: #c62828;
+  }
+
+  .job-saved-path {
+    color: #2e7d32;
+  }
+
+  .job-rerun-btn {
+    border-color: rgba(0, 0, 0, 0.15);
+    background: #f5f5f5;
+  }
+
+  .job-rerun-btn:hover:not(:disabled) {
+    border-color: #646cff;
+    background: rgba(100, 108, 255, 0.1);
+    color: #535bf2;
+  }
+
+  .job-view-link {
+    border-color: rgba(83, 91, 242, 0.3);
+    background: rgba(83, 91, 242, 0.1);
+    color: #535bf2;
+  }
+
+  .job-view-link:hover {
+    border-color: #535bf2;
+    background: rgba(83, 91, 242, 0.2);
   }
 }
 

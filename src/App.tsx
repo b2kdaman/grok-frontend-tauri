@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 
 const SITE_TITLE = "Grok Image & Video";
 
@@ -21,7 +21,7 @@ function usePageTitle() {
   }, [pathname]);
 }
 import { setGrokApiKey } from "./lib/grokApi";
-import { getApiKeyFromCookie, clearApiKeyCookie } from "./lib/cookies";
+import { getApiKeyFromCookie } from "./lib/cookies";
 import Login from "./pages/Login";
 import ImageToImage from "./pages/ImageToImage";
 import ImageToVideo from "./pages/ImageToVideo";
@@ -43,12 +43,6 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
   }, [key, navigate, location]);
 
   if (!key) return null;
-
-  const handleLogout = () => {
-    clearApiKeyCookie();
-    setGrokApiKey(null);
-    navigate("/login");
-  };
 
   return (
     <>
