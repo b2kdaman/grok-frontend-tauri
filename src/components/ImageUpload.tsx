@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 type Props = {
   preview: string | null;
@@ -8,6 +8,29 @@ type Props = {
 
 export default function ImageUpload({ preview, onFileSelect, label = "Image" }: Props) {
   const [isDragging, setIsDragging] = useState(false);
+
+  // Handle paste event
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.startsWith("image/")) {
+          const file = item.getAsFile();
+          if (file) {
+            onFileSelect(file);
+            e.preventDefault();
+          }
+          break;
+        }
+      }
+    };
+
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, [onFileSelect]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,7 +99,7 @@ export default function ImageUpload({ preview, onFileSelect, label = "Image" }: 
                 <path d="M21 15l-5-5L5 21" />
               </svg>
             </span>
-            <span className="upload-zone-text">Drop an image or click to browse</span>
+            <span className="upload-zone-text">Drop, paste, or click to browse</span>
           </div>
         )}
       </div>
