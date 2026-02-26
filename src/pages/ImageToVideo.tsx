@@ -331,6 +331,13 @@ export default function ImageToVideo() {
                         <div className="job-prompt">{job.prompt}</div>
                         {job.savedPath && <p className="job-saved-path">Saved: {job.savedPath}</p>}
                         <div className="job-actions">
+                          <div className="job-actions-left">
+                            {job.resultUrl && (
+                              <a href={job.resultUrl} target="_blank" rel="noopener noreferrer" className="job-view-link">
+                                View Result
+                              </a>
+                            )}
+                          </div>
                           <button
                             type="button"
                             onClick={() => rerunJob(job)}
@@ -339,11 +346,6 @@ export default function ImageToVideo() {
                           >
                             ↻ Rerun
                           </button>
-                          {job.resultUrl && (
-                            <a href={job.resultUrl} target="_blank" rel="noopener noreferrer" className="job-view-link">
-                              View Result
-                            </a>
-                          )}
                         </div>
                       </div>
                     </div>

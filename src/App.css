@@ -720,6 +720,14 @@
   display: flex;
   gap: 0.5rem;
   margin-top: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.job-actions-left {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .job-rerun-btn {
