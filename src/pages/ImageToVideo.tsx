@@ -297,7 +297,6 @@ export default function ImageToVideo() {
             {loading ? "Generating video…" : "Generate video"}
           </button>
 
-          {error && <p className="error">{error}</p>}
           {savedPath && <p className="success">Video saved to: {savedPath}</p>}
 
           <div className="jobs-log">
