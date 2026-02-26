@@ -653,7 +653,7 @@
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
-  padding: 0.35rem 0.65rem;
+  padding: 0.25rem 0.5rem;
   border-radius: 6px;
   letter-spacing: 0.06em;
 }
@@ -661,25 +661,21 @@
 .job-pending .job-status {
   background: rgba(255, 193, 7, 0.15);
   color: #ffc107;
-  border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
 .job-processing .job-status {
   background: rgba(255, 179, 217, 0.15);
   color: #ffb3d9;
-  border: 1px solid rgba(255, 179, 217, 0.25);
 }
 
 .job-completed .job-status {
   background: rgba(76, 175, 80, 0.15);
   color: #66bb6a;
-  border: 1px solid rgba(76, 175, 80, 0.2);
 }
 
 .job-failed .job-status {
   background: rgba(244, 67, 54, 0.15);
   color: #ef5350;
-  border: 1px solid rgba(244, 67, 54, 0.2);
 }
 
 .job-progress {
