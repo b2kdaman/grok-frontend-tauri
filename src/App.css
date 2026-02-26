@@ -221,6 +221,15 @@
   }
 }
 
+@keyframes scan {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 .page-header {
   flex-shrink: 0;
   margin-bottom: 1.25rem;
@@ -607,6 +616,8 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.02);
   transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .job-item:hover {
@@ -614,10 +625,33 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
+.job-processing {
+  border-color: rgba(255, 179, 217, 0.2);
+}
+
+.job-processing::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 179, 217, 0.15) 50%,
+    transparent 100%
+  );
+  animation: scan 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
 .job-content {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
+  position: relative;
+  z-index: 1;
 }
 
 .job-image {
@@ -967,6 +1001,19 @@
   .job-item:hover {
     border-color: rgba(0, 0, 0, 0.25);
     background: #eeeeee;
+  }
+
+  .job-processing {
+    border-color: rgba(255, 158, 201, 0.3);
+  }
+
+  .job-processing::before {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 158, 201, 0.2) 50%,
+      transparent 100%
+    );
   }
 
   .job-image {
