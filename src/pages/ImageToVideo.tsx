@@ -88,6 +88,8 @@ export default function ImageToVideo() {
   const [savedPath, setSavedPath] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [jobs, setJobs] = useState<Job[]>(() => loadJobs());
+  const [sessionCost, setSessionCost] = useState(0);
+  const [copiedJobId, setCopiedJobId] = useState<string | null>(null);
   const jobsListRef = useRef<HTMLDivElement>(null);
 
   const prompt = prompts[currentIndex] || "";
@@ -175,6 +177,9 @@ export default function ImageToVideo() {
 
     setJobs((prev) => [newJob, ...prev]);
 
+    // Increment session cost by $0.30
+    setSessionCost((prev) => prev + 0.30);
+
     // Start progress timer (25 seconds to 100%)
     const startTime = Date.now();
     const progressInterval = setInterval(() => {
@@ -252,6 +257,12 @@ export default function ImageToVideo() {
     runJob(job.prompt, job.image);
   }, [runJob]);
 
+  const loadPromptFromJob = useCallback((job: Job) => {
+    updatePrompt(job.prompt);
+    setCopiedJobId(job.id);
+    setTimeout(() => setCopiedJobId(null), 500);
+  }, [updatePrompt]);
+
   // Global Ctrl+Enter handler
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -310,7 +321,12 @@ export default function ImageToVideo() {
           {savedPath && <p className="success">Video saved to: {savedPath}</p>}
 
           <div className="jobs-log">
-            <h3>Jobs History</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3>Jobs History</h3>
+              <span style={{ color: '#ff4444', fontWeight: 'bold', fontSize: '1.1em' }}>
+                ${sessionCost.toFixed(2)}
+              </span>
+            </div>
             <div className="jobs-list" ref={jobsListRef}>
               {jobs.length === 0 ? (
                 <p className="jobs-empty">No jobs yet. Generate a video to get started.</p>
@@ -328,7 +344,13 @@ export default function ImageToVideo() {
                           <span className="job-status">{getJobStatusText(job)}</span>
                           {job.status === "processing" && <span className="job-progress">{job.progress}%</span>}
                         </div>
-                        <div className="job-prompt">{job.prompt}</div>
+                        <div
+                          className={`job-prompt ${copiedJobId === job.id ? 'job-prompt-copied' : ''}`}
+                          onClick={() => loadPromptFromJob(job)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {job.prompt}
+                        </div>
                         {job.savedPath && <p className="job-saved-path">Saved: {job.savedPath}</p>}
                         <div className="job-actions">
                           <div className="job-actions-left">
