@@ -335,7 +335,12 @@ export default function ImageToVideo() {
                   <div key={job.id} className={`job-item job-${job.status}`}>
                     <div className="job-content">
                       {job.image && (
-                        <div className="job-image">
+                        <div
+                          className="job-image"
+                          onClick={() => setPreview(job.image)}
+                          style={{ cursor: 'pointer' }}
+                          title="Click to load this image"
+                        >
                           <img src={job.image} alt="Job input" />
                         </div>
                       )}
@@ -355,9 +360,13 @@ export default function ImageToVideo() {
                         <div className="job-actions">
                           <div className="job-actions-left">
                             {job.resultUrl && (
-                              <a href={job.resultUrl} target="_blank" rel="noopener noreferrer" className="job-view-link">
+                              <button
+                                type="button"
+                                onClick={() => setResultUrl(job.resultUrl!)}
+                                className="job-view-link"
+                              >
                                 View Result
-                              </a>
+                              </button>
                             )}
                           </div>
                           <button
