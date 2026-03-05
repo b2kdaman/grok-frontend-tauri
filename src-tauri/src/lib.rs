@@ -1,5 +1,57 @@
 use std::fs;
+use std::collections::HashMap;
 use tauri::Manager;
+
+#[derive(serde::Deserialize)]
+struct ProxyApiRequest {
+    url: String,
+    method: String,
+    headers: HashMap<String, String>,
+    body: Option<String>,
+}
+
+#[derive(serde::Serialize)]
+struct ProxyApiResponse {
+    status: u16,
+    body: String,
+}
+
+#[tauri::command]
+async fn proxy_api_request(request: ProxyApiRequest) -> Result<ProxyApiResponse, String> {
+    let client = reqwest::Client::new();
+
+    let mut req_builder = match request.method.as_str() {
+        "GET" => client.get(&request.url),
+        "POST" => client.post(&request.url),
+        "PUT" => client.put(&request.url),
+        "DELETE" => client.delete(&request.url),
+        "PATCH" => client.patch(&request.url),
+        _ => return Err(format!("Unsupported HTTP method: {}", request.method)),
+    };
+
+    // Add headers
+    for (key, value) in request.headers {
+        req_builder = req_builder.header(&key, &value);
+    }
+
+    // Add body if present
+    if let Some(body) = request.body {
+        req_builder = req_builder.body(body);
+    }
+
+    let response = req_builder
+        .send()
+        .await
+        .map_err(|e| format!("Failed to send request: {}", e))?;
+
+    let status = response.status().as_u16();
+    let body = response
+        .text()
+        .await
+        .map_err(|e| format!("Failed to read response body: {}", e))?;
+
+    Ok(ProxyApiResponse { status, body })
+}
 
 #[tauri::command]
 async fn proxy_media(url: String) -> Result<Vec<u8>, String> {
@@ -52,7 +104,7 @@ async fn save_video(app_handle: tauri::AppHandle, video_data: Vec<u8>) -> Result
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![proxy_media, save_video])
+        .invoke_handler(tauri::generate_handler![proxy_api_request, proxy_media, save_video])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

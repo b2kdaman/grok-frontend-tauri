@@ -31,8 +31,46 @@ function isTauri(): boolean {
 /** Custom fetch so requests to imgen.x.ai and vidgen.x.ai go via our proxy (avoids CORS). */
 async function grokFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : (input as Request).url;
+
+  // In Tauri mode, proxy ALL x.ai API requests to avoid CORS
+  if (isTauri() && url.includes("api.x.ai")) {
+    try {
+      const headers: Record<string, string> = {};
+      if (init?.headers) {
+        if (init.headers instanceof Headers) {
+          init.headers.forEach((value, key) => {
+            headers[key] = value;
+          });
+        } else if (Array.isArray(init.headers)) {
+          init.headers.forEach(([key, value]) => {
+            headers[key] = value;
+          });
+        } else {
+          Object.assign(headers, init.headers);
+        }
+      }
+
+      const response = await invoke<{ status: number; body: string }>("proxy_api_request", {
+        request: {
+          url,
+          method: init?.method || "GET",
+          headers,
+          body: init?.body ? String(init.body) : null,
+        },
+      });
+
+      return new Response(response.body, {
+        status: response.status,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (err) {
+      console.error("Tauri proxy error:", err);
+      return new Response(JSON.stringify({ error: String(err) }), { status: 502 });
+    }
+  }
+
   if (useProxy(url)) {
-    // In Tauri, use the Rust backend proxy command
+    // In Tauri, use the Rust backend proxy command for media
     if (isTauri()) {
       try {
         const bytes = await invoke<number[]>("proxy_media", { url });
@@ -195,7 +233,7 @@ export async function imageToVideo(
 
   console.log("Sending video request with body:", JSON.stringify(body, null, 2));
 
-  const startRes = await fetch(`${baseUrl}/videos/generations`, {
+  const startRes = await grokFetch(`${baseUrl}/videos/generations`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -223,7 +261,7 @@ export async function imageToVideo(
 
   const deadline = Date.now() + POLL_TIMEOUT_MS;
   while (Date.now() < deadline) {
-    const pollRes = await fetch(`${baseUrl}/videos/${requestId}`, {
+    const pollRes = await grokFetch(`${baseUrl}/videos/${requestId}`, {
       headers: { Authorization: `Bearer ${apiKey}` },
     });
     if (!pollRes.ok) {
